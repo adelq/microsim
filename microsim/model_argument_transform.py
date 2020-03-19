@@ -129,7 +129,7 @@ def get_all_argument_transforms(parameter_names: Iterable[str]) -> Dict[str, Lis
         if param_name.casefold() != prop_name:
             validation_errors[param_name] = validate_argument_transforms(transforms)
             param_transforms[param_name] = (prop_name, transforms)
-    params_with_validation_errors = [k for k, v in validation_errors if v is not None]
+    params_with_validation_errors = [k for k, v in validation_errors.items() if v is not None]
     if params_with_validation_errors:
         raise RuntimeError(
             "Argument transforms for following parameters names have validation errors:"
