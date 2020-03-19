@@ -66,6 +66,10 @@ class FirstElementTransform(AbstractBaseTransform):
 Transform = AbstractBaseTransform
 
 
+def validate_argument_transforms(transforms: List[Transform]) -> None:
+    pass
+
+
 def get_argument_transforms(
     parameter_name: str,
     max_num_transforms: int = 10,
@@ -118,9 +122,18 @@ def get_argument_transforms(
 
 def get_all_argument_transforms(parameter_names: Iterable[str]) -> Dict[str, List[Transform]]:
     """Return transform functions for each model parameter, if any"""
+    validation_errors = {}
     param_transforms = {}
     for param_name in parameter_names:
         prop_name, transforms = get_argument_transforms(param_name)
         if param_name.casefold() != prop_name:
+            validation_errors[param_name] = validate_argument_transforms(transforms)
             param_transforms[param_name] = (prop_name, transforms)
+    params_with_validation_errors = [k for k, v in validation_errors if v is not None]
+    if params_with_validation_errors:
+        raise RuntimeError(
+            "Argument transforms for following parameters names have validation errors:"
+            f" {', '.join(params_with_validation_errors)}",  # TODO: include error messages
+            validation_errors
+        )
     return param_transforms
